@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サイゼリヤメニュー提案アプリ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'メイリオ', sans-serif;
+            background: linear-gradient(135deg, #009246 0%, #ffffff 50%, #ce2b37 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #c8161d;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .option-group {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .option-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+            display: block;
+            font-size: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .option-button {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .option-button:hover {
+            border-color: #c8161d;
+            transform: translateY(-2px);
+        }
+
+        .option-button.active {
+            background: #c8161d;
+            color: white;
+            border-color: #c8161d;
+        }
+
+        .must-have-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: 'Hiragino Kaku Gothic ProN', 'メイリオ', sans-serif;
+        }
+
+        .must-have-input:focus {
+            outline: none;
+            border-color: #c8161d;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #c8161d 0%, #e74c3c 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(200, 22, 29, 0.4);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(200, 22, 29, 0.6);
+        }
+
+        .gacha-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .gacha-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .confirm-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
+        }
+
+        .retry-btn {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.4);
+        }
+
+        .retry-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(149, 165, 166, 0.6);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 12px;
+            border: 2px solid #c8161d;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #c8161d;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .menu-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .menu-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .menu-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .menu-price {
+            color: #c8161d;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .total {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #c8161d;
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .total-amount {
+            color: #c8161d;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍝 サイゼリヤメニュー提案</h1>
+        <p class="subtitle">今日の気分に合わせたメニューを提案します</p>
+
+        <div class="option-group">
+            <label class="option-label">予算</label>
+            <div class="button-group">
+                <button class="option-button active" data-option="budget" data-value="800-1000">800〜1,000円</button>
+                <button class="option-button" data-option="budget" data-value="1000-1200">1,000〜1,200円</button>
+                <button class="option-button" data-option="budget" data-value="1200-1500">1,200〜1,500円</button>
+                <button class="option-button" data-option="budget" data-value="custom">○○円以内</button>
+            </div>
+            <input type="number" id="customBudget" class="must-have-input" placeholder="例: 1500" style="margin-top: 10px; display: none;" min="500" max="3000">
+        </div>
+
+        <div class="option-group">
+            <label class="option-label">ドリンクバー（セット価格200円）</label>
+            <div class="button-group">
+                <button class="option-button active" data-option="drinkbar" data-value="yes">つける</button>
+                <button class="option-button" data-option="drinkbar" data-value="no">つけない</button>
+            </div>
+        </div>
+
+        <div class="option-group">
+            <label class="option-label">気分</label>
+            <div class="button-group">
+                <button class="option-button active" data-option="mood" data-value="standard">定番</button>
+                <button class="option-button" data-option="mood" data-value="challenge">チャレンジ</button>
+                <button class="option-button" data-option="mood" data-value="expert">通好み</button>
+            </div>
+        </div>
+
+        <div class="option-group">
+            <label class="option-label">必ず入れたいメニュー（任意）</label>
+            <input type="text" id="mustHaveMenu" class="must-have-input" placeholder="例: ミラノ風ドリア、辛味チキン">
+            <div style="font-size: 12px; color: #666; margin-top: 8px;">※ 複数ある場合は「、」で区切ってください</div>
+        </div>
+
+        <button class="generate-btn" onclick="generateMenu()">メニューを提案してもらう！</button>
+        
+        <button class="gacha-btn" onclick="generateGacha()">🎰 今日の運試し！ガチャで決める</button>
+
+        <div class="result" id="result">
+            <div class="result-title">今日のおすすめメニュー</div>
+            <div id="menuList"></div>
+            <div class="total">
+                合計: <span class="total-amount" id="totalPrice">0円</span>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn confirm-btn" onclick="confirmOrder()">✅ これにする！</button>
+                <button class="action-btn retry-btn" onclick="retryMenu()">🔄 もう一回考える</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Order history storage
+        let orderHistory = JSON.parse(localStorage.getItem('saizeriyaOrders') || '[]');
+        let currentMenu = [];
+
+        const menuData = {
+            standard: {
+                side: [
+                    { name: '辛味チキン', price: 300, calories: 390, seasonal: false, category: 'appetizer' },
+                    { name: 'ポップコーンシュリンプ', price: 300, calories: 280, seasonal: false, category: 'appetizer' },
+                    { name: 'キャロットラペ', price: 200, calories: 80, seasonal: false, category: 'appetizer' },
+                    { name: '小エビのカクテル', price: 280, calories: 120, seasonal: false, category: 'appetizer' },
+                    { name: '蒸し鶏の香味ソース', price: 280, calories: 200, seasonal: false, category: 'appetizer' },
+                    { name: 'ハモン・セラーノ', price: 320, calories: 180, seasonal: false, category: 'appetizer' },
+                    { name: 'スイートコーン', price: 200, calories: 150, seasonal: false, category: 'appetizer' },
+                    { name: 'ほうれん草のソテー', price: 200, calories: 90, seasonal: false, category: 'appetizer' },
+                    { name: 'カリっとポテト', price: 280, calories: 320, seasonal: false, category: 'appetizer' },
+                    { name: 'ポテトのグリル', price: 300, calories: 280, seasonal: false, category: 'appetizer' },
+                    { name: 'チョリソー', price: 400, calories: 420, seasonal: false, category: 'appetizer' },
+                    { name: '小エビのサラダ', price: 350, calories: 140, seasonal: false, category: 'salad' },
+                    { name: 'チキンのサラダ', price: 350, calories: 180, seasonal: false, category: 'salad' },
+                    { name: 'わかめのサラダ', price: 350, calories: 100, seasonal: false, category: 'salad' },
+                    { name: '柔らか青豆の温サラダ', price: 200, calories: 110, seasonal: false, category: 'salad' },
+                ],
+                main: [
+                    { name: 'ミラノ風ドリア', price: 300, calories: 520, seasonal: false, category: 'doria' },
+                    { name: '半熟卵のミラノ風ドリア', price: 350, calories: 600, seasonal: false, category: 'doria' },
+                    { name: '焼きチーズミラノ風ドリア', price: 350, calories: 610, seasonal: false, category: 'doria' },
+                    { name: 'タラコソースシシリー風', price: 400, calories: 530, seasonal: false, category: 'pasta' },
+                    { name: 'ペペロンチーノ', price: 300, calories: 480, seasonal: false, category: 'pasta' },
+                    { name: '半熟卵のペペロンチーノ', price: 350, calories: 560, seasonal: false, category: 'pasta' },
+                    { name: 'カルボナーラ', price: 500, calories: 720, seasonal: false, category: 'pasta' },
+                    { name: 'ミートソースボロニア風', price: 400, calories: 580, seasonal: false, category: 'pasta' },
+                    { name: '半熟卵のミートソースボロニア風', price: 450, calories: 660, seasonal: false, category: 'pasta' },
+                    { name: 'パルマ風スパゲッティ', price: 400, calories: 620, seasonal: false, category: 'pasta' },
+                    { name: 'ペンネアラビアータ（全粒粉）', price: 400, calories: 520, seasonal: false, category: 'pasta' },
+                    { name: 'バッファローモッツァレラのマルゲリータピザ', price: 400, calories: 560, seasonal: false, category: 'pizza' },
+                    { name: 'ソーセージピザ', price: 400, calories: 630, seasonal: false, category: 'pizza' },
+                    { name: 'たっぷりコーンのピザ', price: 400, calories: 580, seasonal: false, category: 'pizza' },
+                    { name: '野菜ときのこのピザ', price: 400, calories: 520, seasonal: false, category: 'pizza' },
+                    { name: 'ハンバーグステーキ（デミソース）', price: 400, calories: 450, seasonal: false, category: 'hamburg' },
+                    { name: '若鶏のディアボラ風（ガルムソース）', price: 500, calories: 540, seasonal: false, category: 'chicken' },
+                    { name: '柔らかチキンのチーズ焼き（デミソース）', price: 500, calories: 620, seasonal: false, category: 'chicken' },
+                ],
+                dessert: [
+                    { name: 'ティラミス クラシコ', price: 300, calories: 290, seasonal: false },
+                    { name: 'イタリアンプリン', price: 250, calories: 210, seasonal: false },
+                    { name: 'ミルクジェラート', price: 250, calories: 180, seasonal: false },
+                    { name: 'チョコレートケーキ', price: 300, calories: 320, seasonal: false },
+                    { name: 'トリフアイスクリーム', price: 350, calories: 270, seasonal: false },
+                    { name: 'コーヒーゼリー＆ミルクジェラート', price: 350, calories: 200, seasonal: false },
+                ]
+            },
+            challenge: {
+                side: [
+                    { name: 'エスカルゴのオーブン焼き', price: 400, calories: 250, seasonal: false, category: 'appetizer' },
+                    { name: 'アロスティチーニ（ラムの串焼き）', price: 400, calories: 380, seasonal: false, category: 'appetizer' },
+                    { name: 'バッファローモッツァレラのカプレーゼ', price: 430, calories: 280, seasonal: false, category: 'appetizer' },
+                    { name: '生ハムとバッファローモッツアレラの盛合わせ', price: 500, calories: 320, seasonal: false, category: 'appetizer' },
+                    { name: 'ムール貝のガーリック焼き', price: 400, calories: 190, seasonal: false, category: 'appetizer' },
+                    { name: 'たまねぎのズッパ', price: 300, calories: 180, seasonal: false, category: 'soup' },
+                    { name: 'コーンクリームスープ', price: 150, calories: 130, seasonal: false, category: 'soup' },
+                    { name: '田舎風ミネストローネ', price: 300, calories: 150, seasonal: false, category: 'soup' },
+                ],
+                main: [
+                    { name: 'タラコとポップコーンシュリンプのドリア', price: 400, calories: 610, seasonal: false, category: 'doria' },
+                    { name: 'ポップコーンシュリンプとタラコのクリームグラタン（全粒粉）', price: 430, calories: 640, seasonal: false, category: 'doria' },
+                    { name: 'タラコとエビのドリア', price: 400, calories: 590, seasonal: false, category: 'doria' },
+                    { name: 'エビとタラコのクリームグラタン（全粒粉）', price: 430, calories: 620, seasonal: false, category: 'doria' },
+                    { name: '小エビのタラコソース', price: 540, calories: 680, seasonal: false, category: 'pasta' },
+                    { name: 'スープ入り塩味ボンゴレ', price: 500, calories: 540, seasonal: false, category: 'pasta' },
+                    { name: 'イカの墨入りセピアソース', price: 500, calories: 560, seasonal: false, category: 'pasta' },
+                    { name: 'きのことほうれん草のクリームスパゲティ', price: 600, calories: 720, seasonal: false, category: 'pasta' },
+                    { name: 'ディアボラ風ハンバーグ（ガルムソース）', price: 500, calories: 520, seasonal: false, category: 'hamburg' },
+                    { name: 'イタリアンハンバーグ（デミソース）', price: 500, calories: 580, seasonal: false, category: 'hamburg' },
+                    { name: 'ミックスグリル（デミソース）', price: 650, calories: 820, seasonal: false, category: 'hamburg' },
+                    { name: 'ビーフステーキ（ガルムソース）', price: 1090, calories: 680, seasonal: false, category: 'hamburg' },
+                    { name: 'ラム（仔羊）と野菜のグリル', price: 870, calories: 650, seasonal: false, category: 'lamb' },
+                ],
+                dessert: [
+                    { name: 'プリンとティラミス クラシコの盛合せ', price: 500, calories: 500, seasonal: false },
+                    { name: 'ジェラート＆シナモンフォッカチオ', price: 450, calories: 420, seasonal: false },
+                ]
+            },
+            riceAndBread: [
+                { name: 'ライス', price: 150, calories: 270, category: 'rice' },
+                { name: 'スモールライス', price: 100, calories: 180, category: 'rice' },
+                { name: 'フォッカチオ', price: 150, calories: 220, category: 'bread' },
+            ]
+        };
+
+        const options = {
+            budget: '800-1000',
+            drinkbar: 'yes',
+            mood: 'standard'
+        };
+
+        document.querySelectorAll('.option-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const option = this.dataset.option;
+                const value = this.dataset.value;
+                
+                document.querySelectorAll(`[data-option="${option}"]`).forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                this.classList.add('active');
+                options[option] = value;
+
+                // Show/hide custom budget input
+                if (option === 'budget') {
+                    const customBudgetInput = document.getElementById('customBudget');
+                    if (value === 'custom') {
+                        customBudgetInput.style.display = 'block';
+                    } else {
+                        customBudgetInput.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        function generateGacha() {
+            // Gacha uses 1000-2000 budget, ignores all other settings
+            const gachaBudget = Math.floor(Math.random() * 1000) + 1000; // 1000-2000円
+            const drinkbarPrice = Math.random() > 0.5 ? 200 : 0; // ランダムでドリンクバー
+            let availableBudget = gachaBudget - drinkbarPrice;
+
+            const allMenus = [
+                ...menuData.standard.side,
+                ...menuData.standard.main,
+                ...menuData.standard.dessert,
+                ...menuData.challenge.side,
+                ...menuData.challenge.main,
+                ...menuData.challenge.dessert,
+            ];
+
+            // Shuffle and pick random items
+            const shuffled = allMenus.sort(() => 0.5 - Math.random());
+            const gachaMenu = [];
+            let total = 0;
+
+            for (let item of shuffled) {
+                if (total + item.price <= availableBudget && gachaMenu.length < 4) {
+                    gachaMenu.push(item);
+                    total += item.price;
+                }
+            }
+
+            // Check if hamburg is in menu, add rice/bread
+            const hasHamburg = gachaMenu.some(item => item.category === 'hamburg');
+            if (hasHamburg && availableBudget - total >= 100) {
+                const riceOrBread = menuData.riceAndBread[Math.floor(Math.random() * menuData.riceAndBread.length)];
+                if (riceOrBread.price <= availableBudget - total) {
+                    gachaMenu.push(riceOrBread);
+                }
+            }
+
+            displayResult(gachaMenu, drinkbarPrice, true);
+        }
+
+        function retryMenu() {
+            // Hide result and allow user to generate again
+            document.getElementById('result').classList.remove('show');
+        }
+
+        function confirmOrder() {
+            // Save order to history
+            const order = {
+                menu: currentMenu.map(item => item.name),
+                date: new Date().toISOString(),
+                total: currentMenu.reduce((sum, item) => sum + item.price, 0)
+            };
+            
+            orderHistory.push(order);
+            localStorage.setItem('saizeriyaOrders', JSON.stringify(orderHistory));
+
+            // Update order count for each item
+            currentMenu.forEach(item => {
+                const itemName = item.name;
+                const count = orderHistory.filter(order => order.menu.includes(itemName)).length;
+                
+                // If ordered 3+ times, consider adding to standard menu
+                console.log(`${itemName}: ${count}回注文`);
+            });
+
+            alert('注文を記録しました！🎉\n次回の提案に活かします。');
+            document.getElementById('result').classList.remove('show');
+        }
+
+        function generateMenu() {
+            let minBudget, maxBudget;
+            
+            // Handle custom budget
+            if (options.budget === 'custom') {
+                const customValue = parseInt(document.getElementById('customBudget').value);
+                if (!customValue || customValue < 500) {
+                    alert('予算を500円以上で入力してください');
+                    return;
+                }
+                minBudget = customValue - 200;
+                maxBudget = customValue;
+            } else {
+                [minBudget, maxBudget] = options.budget.split('-').map(Number);
+            }
+            
+            const drinkbarPrice = options.drinkbar === 'yes' ? 200 : 0;
+            let availableBudget = maxBudget - drinkbarPrice;
+
+            // Get must-have items
+            const mustHaveInput = document.getElementById('mustHaveMenu').value.trim();
+            const mustHaveItems = [];
+            
+            if (mustHaveInput) {
+                const mustHaveNames = mustHaveInput.split(/[、,]/).map(name => name.trim()).filter(name => name);
+                
+                // Search for must-have items in all menus
+                const allMenus = [
+                    ...Object.values(menuData.standard).flat(),
+                    ...Object.values(menuData.challenge).flat(),
+                    ...menuData.riceAndBread
+                ];
+                
+                mustHaveNames.forEach(searchName => {
+                    const found = allMenus.find(item => 
+                        item.name.includes(searchName) || searchName.includes(item.name)
+                    );
+                    if (found && !mustHaveItems.includes(found)) {
+                        mustHaveItems.push(found);
+                        availableBudget -= found.price;
+                    }
+                });
+            }
+
+            let moodCategories = [];
+            
+            if (options.mood === 'expert') {
+                // 通好みはチャレンジメニュー中心に、たまに定番も混ぜる
+                moodCategories = ['challenge', 'standard'];
+            } else {
+                moodCategories = [options.mood];
+            }
+
+            // Collect all available items by category
+            const availableItems = {
+                side: [],
+                main: [],
+                dessert: []
+            };
+
+            moodCategories.forEach(mood => {
+                availableItems.side.push(...menuData[mood].side);
+                availableItems.main.push(...menuData[mood].main);
+                availableItems.dessert.push(...menuData[mood].dessert);
+            });
+
+            // Remove must-have items from available items to avoid duplicates
+            Object.keys(availableItems).forEach(category => {
+                availableItems[category] = availableItems[category].filter(item => 
+                    !mustHaveItems.some(mustHave => mustHave.name === item.name)
+                );
+            });
+
+            // Shuffle each category
+            Object.keys(availableItems).forEach(category => {
+                availableItems[category].sort(() => 0.5 - Math.random());
+            });
+
+            // Check if must-have items contain hamburg
+            const hasHamburg = mustHaveItems.some(item => item.category === 'hamburg');
+            
+            // Try different menu patterns with rules
+            const patterns = [
+                ['side', 'main', 'dessert'],
+                ['side', 'side', 'main'],
+                ['main', 'dessert'],
+                ['side', 'main'],
+            ];
+
+            let bestMenu = null;
+            let bestTotal = 0;
+
+            patterns.forEach(pattern => {
+                const menu = [];
+                let total = 0;
+                const selectedCategories = new Set();
+
+                pattern.forEach(category => {
+                    const item = availableItems[category].find(item => {
+                        if (total + item.price > availableBudget) return false;
+                        if (menu.includes(item)) return false;
+                        
+                        // Rule: Don't mix doria/gratin, hamburg, and pizza in main dishes
+                        if (item.category) {
+                            const heavyCategories = ['doria', 'hamburg', 'pizza'];
+                            const itemIsHeavy = heavyCategories.includes(item.category);
+                            
+                            if (itemIsHeavy) {
+                                // Check if we already have a heavy category
+                                const hasHeavyCategory = Array.from(selectedCategories).some(cat => 
+                                    heavyCategories.includes(cat)
+                                );
+                                if (hasHeavyCategory) return false;
+                            }
+                            
+                            selectedCategories.add(item.category);
+                        }
+                        
+                        return true;
+                    });
+                    
+                    if (item) {
+                        menu.push(item);
+                        total += item.price;
+                    }
+                });
+
+                // Prefer patterns that use more budget and have more variety
+                if (menu.length === pattern.length && total > bestTotal) {
+                    bestMenu = menu;
+                    bestTotal = total;
+                }
+            });
+
+            // Fallback: if no pattern worked, just pick items that fit budget
+            if (!bestMenu || bestMenu.length === 0) {
+                bestMenu = [];
+                let total = 0;
+                const selectedCategories = new Set();
+                
+                // Try main first
+                const main = availableItems.main.find(item => {
+                    if (item.price > availableBudget) return false;
+                    const heavyCategories = ['doria', 'hamburg', 'pizza'];
+                    if (item.category && heavyCategories.includes(item.category)) {
+                        const hasHeavyCategory = Array.from(selectedCategories).some(cat => 
+                            heavyCategories.includes(cat)
+                        );
+                        if (hasHeavyCategory) return false;
+                        selectedCategories.add(item.category);
+                    }
+                    return true;
+                });
+                
+                if (main) {
+                    bestMenu.push(main);
+                    total += main.price;
+                }
+                
+                const side = availableItems.side.find(item => total + item.price <= availableBudget);
+                if (side) {
+                    bestMenu.push(side);
+                    total += side.price;
+                }
+            }
+
+            // Rule: If hamburg is selected, add rice or bread
+            const finalMenuHasHamburg = bestMenu.some(item => item.category === 'hamburg') || hasHamburg;
+            let riceOrBread = null;
+            
+            if (finalMenuHasHamburg && availableBudget >= 100) {
+                // Try to add rice or bread
+                const shuffledRiceAndBread = [...menuData.riceAndBread].sort(() => 0.5 - Math.random());
+                riceOrBread = shuffledRiceAndBread.find(item => item.price <= availableBudget);
+            }
+
+            // Combine must-have items with generated menu
+            let finalMenu = [...mustHaveItems, ...bestMenu];
+            if (riceOrBread) {
+                finalMenu.push(riceOrBread);
+            }
+
+            displayResult(finalMenu, drinkbarPrice);
+        }
+
+        function displayResult(menu, drinkbarPrice, isGacha = false) {
+            const menuList = document.getElementById('menuList');
+            const totalPrice = document.getElementById('totalPrice');
+            const result = document.getElementById('result');
+            const resultTitle = document.querySelector('.result-title');
+
+            // Store current menu
+            currentMenu = [...menu];
+
+            let html = '';
+            let total = 0;
+            let totalCalories = 0;
+
+            const categoryIcons = {
+                side: '🥗',
+                main: '🍝',
+                dessert: '🍰',
+                rice: '🍚',
+                bread: '🥖'
+            };
+
+            menu.forEach(item => {
+                // Determine category icon
+                let icon = '';
+                
+                // Check if it's rice or bread
+                if (item.category === 'rice' || item.category === 'bread') {
+                    icon = categoryIcons[item.category];
+                } else {
+                    // Check in standard and challenge menus
+                    for (let category in menuData.standard) {
+                        if (menuData.standard[category].some(m => m.name === item.name) ||
+                            menuData.challenge[category].some(m => m.name === item.name)) {
+                            icon = categoryIcons[category] || '';
+                            break;
+                        }
+                    }
+                }
+
+                const calorieInfo = item.calories ? ` (${item.calories}kcal)` : '';
+                
+                html += `
+                    <div class="menu-item">
+                        <span class="menu-name">${icon} ${item.name}<span style="font-size: 12px; color: #999;">${calorieInfo}</span></span>
+                        <span class="menu-price">${item.price}円</span>
+                    </div>
+                `;
+                total += item.price;
+                totalCalories += item.calories || 0;
+            });
+
+            if (drinkbarPrice > 0) {
+                html += `
+                    <div class="menu-item">
+                        <span class="menu-name">🥤 ドリンクバー</span>
+                        <span class="menu-price">${drinkbarPrice}円</span>
+                    </div>
+                `;
+                total += drinkbarPrice;
+            }
+
+            menuList.innerHTML = html;
+            totalPrice.innerHTML = `${total}円 <span style="font-size: 14px; color: #666;">(約${totalCalories}kcal)</span>`;
+            
+            // Update title for gacha
+            if (isGacha) {
+                resultTitle.textContent = '🎰 ガチャ結果！';
+            } else {
+                resultTitle.textContent = '今日のおすすめメニュー';
+            }
+            
+            result.classList.remove('show');
+            setTimeout(() => result.classList.add('show'), 10);
+        }
+    </script>
+</body>
+</html>
