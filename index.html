@@ -86,6 +86,29 @@
             border-color: #c8161d;
         }
 
+        .option-button-small {
+            padding: 10px 14px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 4px;
+        }
+
+        .option-button-small:hover {
+            border-color: #c8161d;
+            transform: translateY(-2px);
+        }
+
+        .option-button-small.active {
+            background: #c8161d;
+            color: white;
+            border-color: #c8161d;
+        }
+
         .must-have-input {
             width: 100%;
             padding: 12px;
@@ -289,9 +312,18 @@
         </div>
 
         <div class="option-group">
-            <label class="option-label">必ず入れたいメニュー（任意）</label>
-            <input type="text" id="mustHaveMenu" class="must-have-input" placeholder="例: ミラノ風ドリア、辛味チキン">
-            <div style="font-size: 12px; color: #666; margin-top: 8px;">※ 複数ある場合は「、」で区切ってください</div>
+            <label class="option-label">必ず入れたいジャンル（任意）</label>
+            <div class="button-group" style="flex-wrap: wrap;">
+                <button class="option-button-small" data-category="pasta" onclick="toggleCategory('pasta')">パスタ</button>
+                <button class="option-button-small" data-category="pizza" onclick="toggleCategory('pizza')">ピザ</button>
+                <button class="option-button-small" data-category="doria" onclick="toggleCategory('doria')">ドリア・グラタン</button>
+                <button class="option-button-small" data-category="hamburg" onclick="toggleCategory('hamburg')">ハンバーグ</button>
+                <button class="option-button-small" data-category="salad" onclick="toggleCategory('salad')">サラダ</button>
+                <button class="option-button-small" data-category="appetizer" onclick="toggleCategory('appetizer')">前菜</button>
+                <button class="option-button-small" data-category="soup" onclick="toggleCategory('soup')">スープ</button>
+                <button class="option-button-small" data-category="dessert" onclick="toggleCategory('dessert')">デザート</button>
+            </div>
+            <div style="font-size: 12px; color: #666; margin-top: 8px;">※ 複数選択可能です</div>
         </div>
 
         <button class="generate-btn" onclick="generateMenu()">メニューを提案してもらう！</button>
@@ -315,6 +347,21 @@
         // Order history storage
         let orderHistory = JSON.parse(localStorage.getItem('saizeriyaOrders') || '[]');
         let currentMenu = [];
+        let selectedCategories = [];
+
+        function toggleCategory(category) {
+            const button = document.querySelector(`[data-category="${category}"]`);
+            
+            if (selectedCategories.includes(category)) {
+                // Remove category
+                selectedCategories = selectedCategories.filter(c => c !== category);
+                button.classList.remove('active');
+            } else {
+                // Add category
+                selectedCategories.push(category);
+                button.classList.add('active');
+            }
+        }
 
         const menuData = {
             standard: {
@@ -519,27 +566,24 @@
             const drinkbarPrice = options.drinkbar === 'yes' ? 200 : 0;
             let availableBudget = maxBudget - drinkbarPrice;
 
-            // Get must-have items
-            const mustHaveInput = document.getElementById('mustHaveMenu').value.trim();
+            // Get must-have items from selected categories
             const mustHaveItems = [];
             
-            if (mustHaveInput) {
-                const mustHaveNames = mustHaveInput.split(/[、,]/).map(name => name.trim()).filter(name => name);
-                
-                // Search for must-have items in all menus
+            if (selectedCategories.length > 0) {
                 const allMenus = [
                     ...Object.values(menuData.standard).flat(),
                     ...Object.values(menuData.challenge).flat(),
-                    ...menuData.riceAndBread
                 ];
                 
-                mustHaveNames.forEach(searchName => {
-                    const found = allMenus.find(item => 
-                        item.name.includes(searchName) || searchName.includes(item.name)
-                    );
-                    if (found && !mustHaveItems.includes(found)) {
-                        mustHaveItems.push(found);
-                        availableBudget -= found.price;
+                selectedCategories.forEach(category => {
+                    // Find one random item from this category
+                    const categoryItems = allMenus.filter(item => item.category === category);
+                    if (categoryItems.length > 0) {
+                        const randomItem = categoryItems[Math.floor(Math.random() * categoryItems.length)];
+                        if (!mustHaveItems.includes(randomItem)) {
+                            mustHaveItems.push(randomItem);
+                            availableBudget -= randomItem.price;
+                        }
                     }
                 });
             }
